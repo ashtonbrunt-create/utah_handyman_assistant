@@ -8,9 +8,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --brand: #2A7D4F;
-    --brand-dark: #1E5C3A;
-    --brand-light: #E8F5EE;
+    --brand: #1F5FA6;
+    --brand-dark: #16487E;
+    --brand-light: #E7F0FA;
     --ink: #1A1A2E;
     --ink-soft: #5C6470;
     --paper: #F8F7F4;
@@ -74,7 +74,7 @@
   #out-text p:last-child { margin-bottom: 0; }
   #out-text .section-head { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: .1em; color: var(--brand-dark); margin: 18px 0 4px; display: block; }
   #out-text .section-head:first-child { margin-top: 0; }
-  .disclaimer { font-size: 11px; color: var(--ink-soft); background: var(--brand-light); border: 1px solid #B8DECA; border-radius: 6px; padding: 7px 10px; margin-top: 14px; display: none; }
+  .disclaimer { font-size: 11px; color: var(--ink-soft); background: var(--brand-light); border: 1px solid #B3D1EE; border-radius: 6px; padding: 7px 10px; margin-top: 14px; display: none; }
   .disclaimer.visible { display: block; }
   .demo-note { font-size: 11px; color: var(--amber); background: #FEF9EE; border: 1px dashed #F6D27A; border-radius: 6px; padding: 6px 10px; margin-bottom: 12px; display: none; }
   .demo-note.visible { display: block; }
@@ -168,6 +168,17 @@ const TOOLS = {
       { id: "tech", label: "Technician name", type: "text", ph: "Mike", pair: true },
     ],
   },
+  changeorder: {
+    name: "Change order",
+    desc: "Document work added or changed mid-job and the extra time it takes.",
+    fields: [
+      { id: "customer", label: "Customer name", type: "text", ph: "Johnson family", required: true },
+      { id: "original", label: "Original job", type: "textarea", ph: "Patch and paint two bedroom walls", required: true, hint: "Briefly, what was originally agreed" },
+      { id: "change", label: "What changed / was added", type: "textarea", ph: "Customer asked us to also patch and paint the hallway ceiling and replace a light fixture while we're here", required: true },
+      { id: "hours", label: "Additional hours", type: "text", ph: "2–3 hours", pair: true },
+      { id: "tech", label: "Technician name", type: "text", ph: "Mike", pair: true },
+    ],
+  },
   scope: {
     name: "Scope of work",
     desc: "Clear SOW from rough notes — customer or internal versions.",
@@ -246,6 +257,30 @@ We'll be there right on time and ready to work. If anything comes up or you need
 Looking forward to helping you out!
 
 Mike | Utah Handyman Pros`,
+
+  changeorder: `CHANGE ORDER
+Johnson Family | Prepared by Mike | Utah Handyman Pros
+
+ORIGINAL JOB
+Patch and paint two bedroom walls, approximately 8ft x 10ft each, as agreed in the original estimate.
+
+REQUESTED CHANGE
+While on site, the customer asked us to also patch and paint the hallway ceiling and replace a light fixture.
+
+ADDITIONAL WORK
+1. Patch and prep hallway ceiling
+2. Prime and paint hallway ceiling to match
+3. Remove existing light fixture and install replacement
+
+ADDITIONAL TIME AND COST
+Additional time: 2–3 hours at $65 per man per hour
+Estimated added labor: $130–$195
+Materials: Replacement light fixture [CONFIRM: who supplies]. Any materials we purchase are provided at cost with receipts, no markup.
+
+AUTHORIZATION
+By approving below, you authorize the additional work and cost described above before it begins.
+
+Customer approval: _____________________   Date: __________`,
 
   scope: `SCOPE OF WORK
 
