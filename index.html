@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Utah Handyman Pros — AI Operations Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brand: #2A7D4F;
+    --brand-dark: #1E5C3A;
+    --brand-light: #E8F5EE;
+    --ink: #1A1A2E;
+    --ink-soft: #5C6470;
+    --paper: #F8F7F4;
+    --card: #FFFFFF;
+    --line: #E4E2DE;
+    --err: #C03B3B;
+    --amber: #D97706;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; }
+
+  header { background: var(--brand); color: #fff; padding: 16px 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .brand-wrap { display: flex; align-items: center; gap: 12px; }
+  .brand-icon { width: 38px; height: 38px; background: rgba(255,255,255,.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .brand-name { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: .01em; }
+  .brand-sub { font-size: 12px; color: rgba(255,255,255,.75); margin-top: 1px; }
+  .badges { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  .badge { font-size: 10px; letter-spacing: .06em; border: 1px solid rgba(255,255,255,.25); color: rgba(255,255,255,.85); padding: 4px 9px; border-radius: 20px; white-space: nowrap; font-weight: 500; }
+  .badge.accent { background: rgba(255,255,255,.2); border-color: transparent; }
+
+  .tabs { display: flex; background: var(--card); border-bottom: 1px solid var(--line); overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { font-family: 'Nunito', sans-serif; font-weight: 600; font-size: 13px; padding: 13px 16px; color: var(--ink-soft); cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent; transition: color .12s; user-select: none; flex-shrink: 0; text-transform: uppercase; letter-spacing: .05em; }
+  .tab:hover { color: var(--ink); }
+  .tab.active { color: var(--brand-dark); border-bottom-color: var(--brand); }
+
+  main { max-width: 780px; margin: 0 auto; padding: 26px 18px 60px; }
+  .tool-title { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 20px; margin-bottom: 4px; }
+  .tool-desc { font-size: 13px; color: var(--ink-soft); margin-bottom: 22px; }
+
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 20px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 560px) { .grid2 { grid-template-columns: 1fr; } }
+
+  label { display: block; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 6px; }
+  .field { margin-bottom: 16px; }
+  .field-hint { font-size: 11px; color: var(--ink-soft); margin-top: 4px; font-style: italic; }
+  input[type=text], select, textarea { width: 100%; padding: 10px 12px; font-size: 14px; font-family: inherit; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--brand); }
+  input.invalid, textarea.invalid { border-color: var(--err); }
+  textarea { min-height: 90px; resize: vertical; line-height: 1.55; }
+  .required-star { color: var(--brand); margin-left: 2px; }
+
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+  .gen-btn { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 15px; background: var(--brand); color: #fff; border: none; border-radius: 8px; padding: 12px 26px; cursor: pointer; transition: background .12s; }
+  .gen-btn:hover { background: var(--brand-dark); }
+  .gen-btn:disabled { opacity: .55; cursor: not-allowed; }
+  .validation-msg { font-size: 12px; color: var(--err); display: none; margin-top: 8px; }
+  .validation-msg.visible { display: block; }
+
+  .output { margin-top: 20px; background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--brand); border-radius: 8px; padding: 18px 20px; display: none; }
+  .output.visible { display: block; }
+  .output-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px; flex-wrap: wrap; }
+  .output-label { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-soft); }
+  .output-actions { display: flex; gap: 8px; }
+  .action-btn { font-size: 12px; background: none; border: 1px solid var(--line); border-radius: 6px; padding: 5px 12px; cursor: pointer; color: var(--ink-soft); font-family: inherit; }
+  .action-btn:hover { border-color: var(--brand); color: var(--brand-dark); }
+  #out-text { font-size: 14px; line-height: 1.7; }
+  #out-text.error { color: var(--err); white-space: pre-wrap; }
+  #out-text p { margin-bottom: 10px; white-space: pre-wrap; }
+  #out-text p:last-child { margin-bottom: 0; }
+  #out-text .section-head { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: .1em; color: var(--brand-dark); margin: 18px 0 4px; display: block; }
+  #out-text .section-head:first-child { margin-top: 0; }
+  .disclaimer { font-size: 11px; color: var(--ink-soft); background: var(--brand-light); border: 1px solid #B8DECA; border-radius: 6px; padding: 7px 10px; margin-top: 14px; display: none; }
+  .disclaimer.visible { display: block; }
+  .demo-note { font-size: 11px; color: var(--amber); background: #FEF9EE; border: 1px dashed #F6D27A; border-radius: 6px; padding: 6px 10px; margin-bottom: 12px; display: none; }
+  .demo-note.visible { display: block; }
+
+  .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: -2px; margin-right: 7px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .rate-badge { display: inline-block; background: var(--brand-light); color: var(--brand-dark); font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 6px; margin-bottom: 16px; }
+
+  footer { text-align: center; font-size: 12px; color: var(--ink-soft); padding: 20px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand-wrap">
+    <div class="brand-icon">🔧</div>
+    <div>
+      <div class="brand-name">Utah Handyman Pros</div>
+      <div class="brand-sub">AI operations assistant</div>
+    </div>
+  </div>
+  <div class="badges">
+    <span class="badge accent">FAMILY OWNED</span>
+    <span class="badge">INTERNAL TOOL</span>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs"></nav>
+
+<main>
+  <h1 class="tool-title" id="tool-title"></h1>
+  <p class="tool-desc" id="tool-desc"></p>
+  <div class="panel" id="form-panel"></div>
+
+  <div class="output" id="output">
+    <div class="output-bar">
+      <span class="output-label" id="out-label">Output</span>
+      <div class="output-actions">
+        <button class="action-btn" id="regen-btn" onclick="regenerate()">Regenerate</button>
+        <button class="action-btn" onclick="copyOut()">Copy</button>
+      </div>
+    </div>
+    <div class="demo-note" id="demo-note">Sample output (demo mode) — live AI generation activates once deployed.</div>
+    <div id="out-text"></div>
+    <div class="disclaimer" id="disclaimer">This answer is based on available company documentation. When in doubt, confirm with your manager before acting.</div>
+  </div>
+</main>
+
+<footer>Outputs are drafts — review before sending.</footer>
+
+<script>
+const TOOLS = {
+  training: {
+    name: "Ask a Question",
+    desc: "Get answers to process and job questions based on company standards.",
+    fields: [
+      { id: "question", label: "Your question", type: "textarea", ph: "What do I do if a customer asks me to do work that wasn't on the original job order?", required: true },
+      { id: "role", label: "Your role", type: "select", options: ["Field technician","New hire","Office staff","Lead technician","Manager"] },
+    ],
+  },
+  estimate: {
+    name: "Estimate",
+    desc: "Professional customer-facing job estimate in minutes.",
+    fields: [
+      { id: "customer", label: "Customer name", type: "text", ph: "Johnson family", required: true },
+      { id: "address", label: "Job address", type: "text", ph: "742 Evergreen Terrace, Provo UT", pair: true },
+      { id: "jobtype", label: "Job type", type: "select", options: ["Home repair","Painting","Drywall","Plumbing","Electrical","Carpentry","Remodel / renovation","General maintenance","Other"] },
+      { id: "hours", label: "Estimated hours", type: "text", ph: "3–4 hours (1 technician)", pair: true },
+      { id: "notes", label: "Job details", type: "textarea", ph: "Patch and paint two bedroom walls, approx 8ft x 10ft each, existing paint color TBD, customer will supply paint", required: true, hint: "Include what needs to be done, any special conditions, and whether materials are needed" },
+      { id: "tech", label: "Technician name", type: "text", ph: "Mike", pair: true },
+    ],
+  },
+  followup: {
+    name: "Follow-up",
+    desc: "Warm, friendly customer follow-up email.",
+    fields: [
+      { id: "name", label: "Customer name", type: "text", ph: "Dave Peterson", required: true },
+      { id: "type", label: "Follow-up type", type: "select", options: ["Post-estimate (no decision yet)","Post-job thank you","Reschedule","Referral request","Outstanding balance reminder"], pair: true, required: true },
+      { id: "context", label: "Context / notes", type: "textarea", ph: "Gave estimate for bathroom tile repair last Thursday, about 2 hours work, he said he'd think about it" },
+      { id: "tech", label: "Your name", type: "text", ph: "Mike", required: true },
+    ],
+  },
+  confirmation: {
+    name: "Confirmation",
+    desc: "Appointment confirmation message for the customer.",
+    fields: [
+      { id: "customer", label: "Customer name", type: "text", ph: "Sarah Williams", required: true },
+      { id: "job", label: "Job description", type: "text", ph: "Drywall patch and paint, master bedroom", required: true },
+      { id: "datetime", label: "Date and time", type: "text", ph: "Tuesday June 17 at 9:00 AM", pair: true },
+      { id: "tech", label: "Technician name", type: "text", ph: "Mike", pair: true },
+    ],
+  },
+  scope: {
+    name: "Scope of work",
+    desc: "Clear SOW from rough notes — customer or internal versions.",
+    fields: [
+      { id: "bullets", label: "Job notes or bullet points", type: "textarea", ph: "- Patch 3 holes in drywall living room\n- Sand and texture to match\n- Prime and paint two coats\n- Customer supplying paint\n- Move furniture back after", required: true },
+      { id: "for", label: "Intended for", type: "select", options: ["Customer-facing","Internal technician reference"] },
+    ],
+  },
+  notes: {
+    name: "Job notes",
+    desc: "Raw field notes turned into a clean job summary.",
+    fields: [
+      { id: "raw", label: "Raw field notes", type: "textarea", ph: "got there 8am, patched 3 holes two small one big above window, texture didn't match great first coat had to redo, paint took 2.5 hours total, customer happy, noticed a 4th hole behind door we didn't quote, told her we can come back, cleaned up by 1230", required: true },
+    ],
+  },
+};
+
+const DEMO = {
+  training: `Here is what you should do:
+
+1. Stop and do not begin the additional work without authorization.
+2. Tell the customer clearly and politely that any work beyond the original job order needs to be approved first.
+3. Take note of exactly what they are asking for — description, location, and estimated time.
+4. Contact your manager right away with the details before agreeing to anything.
+5. Your manager will decide whether to approve the additional work and at what rate.
+6. Do not quote a price or commit to a timeline on your own.
+
+When in doubt, confirm with your manager before acting.`,
+
+  estimate: `JOB ESTIMATE
+Johnson Family | 742 Evergreen Terrace, Provo UT
+Prepared by Mike | Utah Handyman Pros
+
+OVERVIEW
+Thank you for the opportunity to help with your home. Utah Handyman Pros is a local family-owned business committed to honest, transparent service. We charge a straightforward $65 per man per hour — no hidden fees, no material markups.
+
+SCOPE OF WORK
+1. Patch and paint two bedroom walls, approximately 8ft x 10ft each
+2. Sand and prepare surfaces for a clean finish
+3. Apply two coats of paint to match or refresh the space
+4. [CONFIRM: paint color and who is supplying paint]
+5. Full cleanup upon completion
+
+PRICING
+Rate: $65 per man per hour
+Estimated time: 3–4 hours (1 technician)
+Estimated total: $195–$260 in labor
+Materials: [CONFIRM: if we supply paint, receipts provided at cost — no markup]
+
+NEXT STEPS
+If this looks good, give us a call or text to get you on the schedule.
+
+Mike | Utah Handyman Pros | 801-850-7499`,
+
+  followup: `Subject: Following up on your bathroom tile estimate
+
+Hi Dave,
+
+Just wanted to check in after we came out last Thursday to look at the tile repair.
+
+It's about a 2-hour job and we can usually get out within the week once you're ready. Just give me a call or text whenever you'd like to move forward — no pressure at all.
+
+Mike
+Utah Handyman Pros · 801-850-7499`,
+
+  confirmation: `Hi Sarah,
+
+Just confirming your appointment with Utah Handyman Pros:
+
+Job: Drywall patch and paint, master bedroom
+Date: Tuesday June 17 at 9:00 AM
+Technician: Mike
+
+We'll be there right on time and ready to work. If anything comes up or you need to reschedule, just call or text us at 801-850-7499.
+
+Looking forward to helping you out!
+
+Mike | Utah Handyman Pros`,
+
+  scope: `SCOPE OF WORK
+
+Utah Handyman Pros will complete the following:
+
+1. Patch three holes in drywall, living room
+2. Sand and apply texture to match existing wall surface
+3. Prime patched areas
+4. Apply two coats of paint
+5. Move furniture back to original position after completion
+6. Full cleanup before leaving
+
+Materials: Customer supplying paint. Any additional materials purchased at cost — receipts provided, no markup.
+
+Any work outside this scope requires customer approval before proceeding.`,
+
+  notes: `WORK COMPLETED
+1. Arrived on site at 8:00 AM
+2. Patched three holes in drywall — two small, one large above window
+3. Applied texture — required two attempts to match existing surface
+4. Painted full area, two coats — completed by 12:30 PM
+
+MATERIALS USED
+1. Drywall patch compound
+2. [CONFIRM: paint supplied by customer]
+
+ISSUES ENCOUNTERED
+1. Texture match required a second attempt — extra 20 minutes
+
+OUTSTANDING ITEMS
+1. Fourth hole discovered behind door — not included in original quote
+2. Customer notified and expressed interest in scheduling a return visit
+3. [CONFIRM: follow up with customer to schedule patch of fourth hole]`,
+};
+
+let activeTool = "training";
+let lastInput = null;
+
+function renderTabs() {
+  const tabs = document.getElementById("tabs");
+  tabs.innerHTML = "";
+  for (const key of Object.keys(TOOLS)) {
+    const t = document.createElement("div");
+    t.className = "tab" + (key === activeTool ? " active" : "");
+    t.textContent = TOOLS[key].name;
+    t.onclick = () => { activeTool = key; renderTabs(); renderForm(); hideOut(); };
+    tabs.appendChild(t);
+  }
+  const activeEl = tabs.querySelector(".active");
+  if (activeEl) activeEl.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+}
+
+function renderForm() {
+  const tool = TOOLS[activeTool];
+  document.getElementById("tool-title").textContent = tool.name;
+  document.getElementById("tool-desc").textContent = tool.desc;
+  const panel = document.getElementById("form-panel");
+  panel.innerHTML = "";
+
+  if (activeTool === "estimate") {
+    const badge = document.createElement("div");
+    badge.className = "rate-badge";
+    badge.textContent = "💵 Flat rate: $65 per man per hour · No material markups";
+    panel.appendChild(badge);
+  }
+
+  let i = 0;
+  const fields = tool.fields;
+  while (i < fields.length) {
+    const f = fields[i];
+    const next = fields[i + 1];
+    if (next && next.pair && f.type !== "textarea" && next.type !== "textarea") {
+      const row = document.createElement("div");
+      row.className = "grid2";
+      row.appendChild(fieldEl(f));
+      row.appendChild(fieldEl(next));
+      panel.appendChild(row);
+      i += 2;
+    } else {
+      panel.appendChild(fieldEl(f));
+      i += 1;
+    }
+  }
+
+  const vmsg = document.createElement("div");
+  vmsg.className = "validation-msg";
+  vmsg.id = "validation-msg";
+  vmsg.textContent = "Please fill in all required fields before generating.";
+  panel.appendChild(vmsg);
+
+  const btnRow = document.createElement("div");
+  btnRow.className = "btn-row";
+  const btn = document.createElement("button");
+  btn.className = "gen-btn";
+  btn.id = "gen-btn";
+  btn.textContent = "Generate";
+  btn.onclick = generate;
+  btnRow.appendChild(btn);
+  panel.appendChild(btnRow);
+}
+
+function fieldEl(f) {
+  const wrap = document.createElement("div");
+  wrap.className = "field";
+  const lab = document.createElement("label");
+  lab.htmlFor = "f-" + f.id;
+  lab.innerHTML = f.label + (f.required ? '<span class="required-star">*</span>' : '');
+  wrap.appendChild(lab);
+  let el;
+  if (f.type === "select") {
+    el = document.createElement("select");
+    for (const o of f.options) {
+      const opt = document.createElement("option");
+      opt.textContent = o;
+      el.appendChild(opt);
+    }
+  } else if (f.type === "textarea") {
+    el = document.createElement("textarea");
+    el.placeholder = f.ph || "";
+  } else {
+    el = document.createElement("input");
+    el.type = "text";
+    el.placeholder = f.ph || "";
+  }
+  el.id = "f-" + f.id;
+  if (f.required) el.addEventListener("input", () => el.classList.remove("invalid"));
+  wrap.appendChild(el);
+  if (f.hint) {
+    const hint = document.createElement("div");
+    hint.className = "field-hint";
+    hint.textContent = f.hint;
+    wrap.appendChild(hint);
+  }
+  return wrap;
+}
+
+function validateForm() {
+  const tool = TOOLS[activeTool];
+  let valid = true;
+  for (const f of tool.fields) {
+    if (f.required && f.type !== "select") {
+      const el = document.getElementById("f-" + f.id);
+      if (!el.value.trim()) { el.classList.add("invalid"); valid = false; }
+    }
+  }
+  const vmsg = document.getElementById("validation-msg");
+  if (vmsg) vmsg.classList.toggle("visible", !valid);
+  return valid;
+}
+
+function collectInput() {
+  const tool = TOOLS[activeTool];
+  const lines = [];
+  for (const f of tool.fields) {
+    const val = document.getElementById("f-" + f.id).value.trim();
+    if (val) lines.push(f.label + ": " + val);
+  }
+  return lines.join("\n") || "(use realistic example data)";
+}
+
+async function generate() {
+  if (!validateForm()) return;
+  lastInput = collectInput();
+  await runGeneration(lastInput);
+}
+
+async function regenerate() {
+  if (!lastInput) return;
+  await runGeneration(lastInput);
+}
+
+async function runGeneration(input) {
+  const tool = TOOLS[activeTool];
+  const btn = document.getElementById("gen-btn");
+  const regenBtn = document.getElementById("regen-btn");
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Generating…'; }
+  if (regenBtn) regenBtn.disabled = true;
+  showOut("", false, "Generating…", false);
+
+  try {
+    if (location.protocol === "file:") throw new Error("demo");
+    const res = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tool: activeTool, input }),
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error("demo");
+    showOut(data.text, false, tool.name, false);
+  } catch (err) {
+    await new Promise((r) => setTimeout(r, 900));
+    showOut(DEMO[activeTool], false, tool.name, true);
+  }
+
+  if (btn) { btn.disabled = false; btn.textContent = "Generate"; }
+  if (regenBtn) regenBtn.disabled = false;
+}
+
+function renderOutput(text) {
+  const lines = text.split("\n");
+  let html = "";
+  let para = [];
+  const flush = () => { if (para.length) { html += `<p>${para.join("\n")}</p>`; para = []; } };
+  for (const line of lines) {
+    if (/^[A-Z][A-Z\s&\/]{3,}$/.test(line.trim()) && line.trim().length < 40) {
+      flush();
+      html += `<span class="section-head">${line.trim()}</span>`;
+    } else {
+      para.push(line);
+    }
+  }
+  flush();
+  return html;
+}
+
+function showOut(text, isError, label, isDemo) {
+  const out = document.getElementById("output");
+  out.classList.add("visible");
+  if (label) document.getElementById("out-label").textContent = label;
+  document.getElementById("demo-note").classList.toggle("visible", !!isDemo);
+  const t = document.getElementById("out-text");
+  if (isError) { t.className = "error"; t.textContent = text; }
+  else { t.className = ""; t.innerHTML = renderOutput(text); }
+  t.dataset.plain = text;
+  document.getElementById("disclaimer").classList.toggle("visible", activeTool === "training");
+  out.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function hideOut() { document.getElementById("output").classList.remove("visible"); }
+
+function copyOut() {
+  const t = document.getElementById("out-text");
+  navigator.clipboard.writeText(t.dataset.plain || t.textContent).catch(() => {});
+}
+
+renderTabs();
+renderForm();
+</script>
+</body>
+</html>
